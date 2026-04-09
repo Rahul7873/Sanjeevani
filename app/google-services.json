@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "294784080454",
+    "project_id": "sanjeevani-innoviz",
+    "storage_bucket": "sanjeevani-innoviz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294784080454:android:0238cdd6f40887aff1c847",
+        "android_client_info": {
+          "package_name": "com.example.sanjeevani"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_BVztj4fR106S94Htql3d5MRIBm_kAUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
