@@ -60,4 +60,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:android-maps-utils:3.4.0")
 
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+
 }

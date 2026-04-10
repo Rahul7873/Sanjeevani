@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -129,5 +131,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Always center the camera on the user's location
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
+
+
+
+        // Inside your onCreate or onViewCreated method
+        val etFrom = findViewById<EditText>(R.id.etFrom)
+        val etTo = findViewById<EditText>(R.id.etTo)
+        val ivSwap = findViewById<ImageView>(R.id.ivSwap) // Make sure to give your ImageView this ID in XML
+
+        ivSwap.setOnClickListener {
+            // 1. Get the current text from both fields
+            val fromText = etFrom.text.toString()
+            val toText = etTo.text.toString()
+
+            // 2. Swap the values
+            etFrom.setText(toText)
+            etTo.setText(fromText)
+
+            // 3. Optional: Move the cursor to the end of the text after swapping
+            etFrom.setSelection(etFrom.text.length)
+            etTo.setSelection(etTo.text.length)
+        }
+
     }
 }
