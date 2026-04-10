@@ -1,4 +1,3 @@
-import org.gradle.accessors.dm.LibrariesForLibs
 import java.util.Properties
 
 
@@ -58,6 +57,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:android-maps-utils:3.4.0")
 
 }
