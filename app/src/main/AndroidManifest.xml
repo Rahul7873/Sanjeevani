@@ -7,10 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <uses-permission android:name="android.permission.VIBRATE" />
-
-
 
     <application
         android:allowBackup="true"
@@ -21,11 +18,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sanjeevani">
-
+        <activity
+            android:name=".User_view"
+            android:exported="false" />
+        <activity
+            android:name=".ALOGIN"
+            android:exported="false" />
+        <activity
+            android:name=".permission_user"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.Material3.Light.NoActionBar"/>
+            android:theme="@style/Theme.Material3.Light.NoActionBar" />
         <activity
             android:name=".Splash"
             android:exported="true">

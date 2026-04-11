@@ -37,13 +37,21 @@ class Splash : AppCompatActivity() {
         title.animate().alpha(1f).setDuration(1000).setStartDelay(300).start()
         caption.animate().alpha(1f).setDuration(1000).setStartDelay(600).start()
 
-        // Transition to MainActivity
+        // Transition based on login status
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, MainActivity::class.java)
+            val sharedPref = getSharedPreferences("SanjeevaniPrefs", android.content.Context.MODE_PRIVATE)
+            val isLoggedIn = sharedPref.getBoolean("isLoggedIn", false)
+
+            val intent = if (isLoggedIn) {
+                // If logged in, go to User_view (Normal User) or MainActivity (Admin/Other)
+                Intent(this, User_view::class.java)
+            } else {
+                Intent(this, permission_user::class.java)
+            }
+            
             startActivity(intent)
-            // Smooth transition between activities
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
-        }, 2500) // Increased to 2.5s so user can see the animation
+        }, 2500)
     }
 }

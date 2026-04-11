@@ -1,17 +1,11 @@
 package com.example.sanjeevani
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,38 +20,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var myMarker: Marker? = null
-    private var isFirstLocationUpdate = true
-
-    // 1. Define the list of permissions to request
-    private val permissionsToRequest = mutableListOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ).apply {
-        // Notifications permission only exists on API 33 (Android 13) and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
-    // 2. Create the launcher
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        val notificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
-        } else true
-
-        if (locationGranted) {
-            initMap()
-        } else {
-            Toast.makeText(this, "Location permission is required for the map.", Toast.LENGTH_LONG).show()
-        }
-
-        if (!notificationGranted) {
-            Toast.makeText(this, "Notifications disabled.", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,52 +27,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // 3. Check and request permissions
-        checkPermissionsAndStart()
-    }
-
-    private fun checkPermissionsAndStart() {
-        val allGranted = permissionsToRequest.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-        }
-
-        if (allGranted) {
-            initMap()
-        } else {
-            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
-        }
-    }
-
-    private fun initMap() {
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.Gmap) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.Gmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        setupSwapLogic()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Visual blue dot
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        // We can safely enable this because permissions were checked in the previous activity
+        try {
             mMap.isMyLocationEnabled = true
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         }
 
-        fetchLastLocation()
         startLocationUpdates()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun fetchLastLocation() {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let { updateUI(LatLng(it.latitude, it.longitude)) }
-        }
     }
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
             .setMinUpdateIntervalMillis(1000)
-            .setWaitForAccurateLocation(false)
             .build()
 
         fusedLocationClient.requestLocationUpdates(locationRequest, object : LocationCallback() {
@@ -125,33 +64,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateUI(latLng: LatLng) {
         if (myMarker == null) {
             myMarker = mMap.addMarker(MarkerOptions().position(latLng).title("You are here"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
         } else {
             myMarker?.position = latLng
         }
+    }
 
-        // Always center the camera on the user's location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
-
-
-
-        // Inside your onCreate or onViewCreated method
+    private fun setupSwapLogic() {
         val etFrom = findViewById<EditText>(R.id.etFrom)
         val etTo = findViewById<EditText>(R.id.etTo)
-        val ivSwap = findViewById<ImageView>(R.id.ivSwap) // Make sure to give your ImageView this ID in XML
+        val ivSwap = findViewById<ImageView>(R.id.ivSwap)
 
         ivSwap.setOnClickListener {
-            // 1. Get the current text from both fields
             val fromText = etFrom.text.toString()
             val toText = etTo.text.toString()
 
-            // 2. Swap the values
             etFrom.setText(toText)
             etTo.setText(fromText)
 
-            // 3. Optional: Move the cursor to the end of the text after swapping
             etFrom.setSelection(etFrom.text.length)
             etTo.setSelection(etTo.text.length)
         }
-
     }
 }
