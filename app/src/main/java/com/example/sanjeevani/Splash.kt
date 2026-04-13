@@ -41,10 +41,14 @@ class Splash : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             val sharedPref = getSharedPreferences("SanjeevaniPrefs", android.content.Context.MODE_PRIVATE)
             val isLoggedIn = sharedPref.getBoolean("isLoggedIn", false)
+            val userType = sharedPref.getString("userType", "Normal")
 
             val intent = if (isLoggedIn) {
-                // If logged in, go to User_view (Normal User) or MainActivity (Admin/Other)
-                Intent(this, User_view::class.java)
+                if (userType == "Ambulance") {
+                    Intent(this, MainActivity::class.java)
+                } else {
+                    Intent(this, User_view::class.java)
+                }
             } else {
                 Intent(this, permission_user::class.java)
             }

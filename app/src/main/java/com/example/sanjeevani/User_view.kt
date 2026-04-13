@@ -1,8 +1,11 @@
 package com.example.sanjeevani
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.location.*
@@ -31,6 +34,12 @@ class User_view : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.Gmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        // Initialize Ambulance Login Button
+        val ambulanceLogin = findViewById<ImageView>(R.id.AID_logIN)
+        ambulanceLogin.setOnClickListener {
+            startActivity(Intent(this, ALOGIN::class.java))
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

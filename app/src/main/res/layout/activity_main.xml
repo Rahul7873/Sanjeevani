@@ -62,12 +62,13 @@
             </LinearLayout>
 
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/etFrom"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_input_field"
                 android:hint="From"
+                android:completionThreshold="1"
                 android:paddingHorizontal="12dp"
                 android:textSize="14sp" />
 
@@ -79,12 +80,13 @@
                 android:layout_marginVertical="4dp"
                 android:src="@drawable/ic_swap" />
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/etTo"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_input_field"
-                android:hint="To"
+                android:hint="From"
+                android:completionThreshold="1"
                 android:paddingHorizontal="12dp"
                 android:textSize="14sp" />
         </LinearLayout>

@@ -48,7 +48,12 @@ class permission_user : AppCompatActivity() {
         // 1. Shared Pref Check (Always first)
         val sharedPref = getSharedPreferences("SanjeevaniPrefs", Context.MODE_PRIVATE)
         if (sharedPref.getBoolean("isLoggedIn", false)) {
-            startActivity(Intent(this, User_view::class.java))
+            val userType = sharedPref.getString("userType", "Normal")
+            if (userType == "Ambulance") {
+                startActivity(Intent(this, MainActivity::class.java))
+            } else {
+                startActivity(Intent(this, User_view::class.java))
+            }
             finish()
             return
         }
