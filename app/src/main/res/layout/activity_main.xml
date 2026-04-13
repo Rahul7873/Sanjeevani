@@ -62,15 +62,32 @@
             </LinearLayout>
 
 
-            <AutoCompleteTextView
-                android:id="@+id/etFrom"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="From"
-                android:completionThreshold="1"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etFrom"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_field"
+                    android:text="Your Location"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="48dp"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivCurrentLocation"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="12dp"
+                    android:src="@android:drawable/ic_menu_mylocation"
+                    app:tint="#4285F4" />
+            </FrameLayout>
 
             <ImageView
                 android:id="@+id/ivSwap"
@@ -85,10 +102,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_input_field"
-                android:hint="From"
+                android:hint="To"
                 android:completionThreshold="1"
                 android:paddingHorizontal="12dp"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:text="Distance: 0 km"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

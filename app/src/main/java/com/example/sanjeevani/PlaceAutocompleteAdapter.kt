@@ -9,8 +9,10 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Tasks
 import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import java.util.concurrent.TimeUnit
@@ -20,6 +22,11 @@ class PlaceAutocompleteAdapter(context: Context, private val placesClient: Place
     Filterable {
 
     private var resultList: List<AutocompletePrediction> = arrayListOf()
+    private var biasLocation: LatLng? = null
+
+    fun setBiasLocation(latLng: LatLng) {
+        this.biasLocation = latLng
+    }
 
     override fun getCount(): Int = resultList.size
 
@@ -43,9 +50,20 @@ class PlaceAutocompleteAdapter(context: Context, private val placesClient: Place
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val filterResults = FilterResults()
                 if (!constraint.isNullOrEmpty()) {
-                    val request = FindAutocompletePredictionsRequest.builder()
+                    val requestBuilder = FindAutocompletePredictionsRequest.builder()
                         .setQuery(constraint.toString())
-                        .build()
+                        .setTypesFilter(listOf("hospital")) // Specifically search for hospitals
+
+                    biasLocation?.let {
+                        val radiusDegrees = 0.1 // Approx 10km
+                        val bounds = RectangularBounds.newInstance(
+                            LatLng(it.latitude - radiusDegrees, it.longitude - radiusDegrees),
+                            LatLng(it.latitude + radiusDegrees, it.longitude + radiusDegrees)
+                        )
+                        requestBuilder.setLocationBias(bounds)
+                    }
+
+                    val request = requestBuilder.build()
 
                     try {
                         val task = placesClient.findAutocompletePredictions(request)

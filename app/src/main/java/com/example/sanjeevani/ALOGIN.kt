@@ -60,13 +60,22 @@ class ALOGIN : AppCompatActivity() {
                     val dbPassword = snapshot.child("password").value.toString()
 
                     if (dbPassword == pass) {
-                        // SUCCESS: Save login state and move to MainActivity
-                        saveLoginStatus(aid)
+                        val isAlreadyLoggedIn = snapshot.child("isLoggedIn").getValue(Boolean::class.java) ?: false
+                        
+                        if (isAlreadyLoggedIn) {
+                            Toast.makeText(this@ALOGIN, "This AID is already logged in on another device", Toast.LENGTH_LONG).show()
+                        } else {
+                            // Mark as logged in in Firebase
+                            database.child(aid).child("isLoggedIn").setValue(true)
+                            
+                            // SUCCESS: Save login state and move to MainActivity
+                            saveLoginStatus(aid)
 
-                        Toast.makeText(this@ALOGIN, "Login Successful!", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@ALOGIN, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                            Toast.makeText(this@ALOGIN, "Login Successful!", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@ALOGIN, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                     } else {
                         Toast.makeText(this@ALOGIN, "Incorrect Password", Toast.LENGTH_SHORT).show()
                     }
