@@ -3,6 +3,7 @@ package com.example.sanjeevani
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -52,42 +53,70 @@ class ALOGIN : AppCompatActivity() {
     }
 
     private fun loginAmbulance(aid: String, pass: String) {
-        // Search for the specific A-ID in your Firebase node
-        database.child(aid).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Get the actual password stored in Firebase for this AID
-                    val dbPassword = snapshot.child("password").value.toString()
+        val loginBtn = findViewById<MaterialButton>(R.id.login)
+        loginBtn.isEnabled = false // Disable immediately to prevent multiple clicks and crashes
 
-                    if (dbPassword == pass) {
-                        val isAlreadyLoggedIn = snapshot.child("isLoggedIn").getValue(Boolean::class.java) ?: false
-                        
-                        if (isAlreadyLoggedIn) {
-                            Toast.makeText(this@ALOGIN, "This AID is already logged in on another device", Toast.LENGTH_LONG).show()
+        try {
+            val currentDeviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown"
+
+            // Search for the specific A-ID in your Firebase node
+            database.child(aid).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    try {
+                        if (snapshot.exists()) {
+                            val dbPassword = snapshot.child("password").getValue(String::class.java)
+
+                            if (dbPassword == pass) {
+                                // Safe check for isLoggedIn (handles boolean or string "true")
+                                val isAlreadyLoggedIn = snapshot.child("isLoggedIn").value?.toString()?.toBoolean() ?: false
+                                val lastDeviceId = snapshot.child("deviceId").getValue(String::class.java) ?: ""
+
+                                // Robust check: only block if logged in on a DIFFERENT, NON-EMPTY device ID
+                                if (isAlreadyLoggedIn && lastDeviceId.isNotEmpty() && lastDeviceId != currentDeviceId) {
+                                    Toast.makeText(this@ALOGIN, "This AID is already in use on another device", Toast.LENGTH_LONG).show()
+                                    loginBtn.isEnabled = true
+                                } else {
+                                    // Update login status and Device ID
+                                    val updates = mapOf(
+                                        "isLoggedIn" to true,
+                                        "deviceId" to currentDeviceId
+                                    )
+                                    database.child(aid).updateChildren(updates).addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            saveLoginStatus(aid)
+                                            Toast.makeText(this@ALOGIN, "Login Successful!", Toast.LENGTH_SHORT).show()
+                                            val intent = Intent(this@ALOGIN, MainActivity::class.java)
+                                            startActivity(intent)
+                                            finish()
+                                        } else {
+                                            loginBtn.isEnabled = true
+                                            Toast.makeText(this@ALOGIN, "Database update failed", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            } else {
+                                loginBtn.isEnabled = true
+                                Toast.makeText(this@ALOGIN, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
-                            // Mark as logged in in Firebase
-                            database.child(aid).child("isLoggedIn").setValue(true)
-                            
-                            // SUCCESS: Save login state and move to MainActivity
-                            saveLoginStatus(aid)
-
-                            Toast.makeText(this@ALOGIN, "Login Successful!", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@ALOGIN, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
+                            loginBtn.isEnabled = true
+                            Toast.makeText(this@ALOGIN, "A-ID not found", Toast.LENGTH_SHORT).show()
                         }
-                    } else {
-                        Toast.makeText(this@ALOGIN, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        loginBtn.isEnabled = true
+                        Toast.makeText(this@ALOGIN, "Error processing data", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this@ALOGIN, "A-ID not found", Toast.LENGTH_SHORT).show()
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ALOGIN, "Database Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    loginBtn.isEnabled = true
+                    Toast.makeText(this@ALOGIN, "Database Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } catch (e: Exception) {
+            loginBtn.isEnabled = true
+            Toast.makeText(this@ALOGIN, "System error occurred", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun saveLoginStatus(aid: String) {
